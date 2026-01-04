@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>National Disaster Alert & Evacuation Platform</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <h2>DRRM System</h2>
+    <button onclick="switchView('citizen')">Citizen Portal</button>
+    <button onclick="switchView('admin')">LGU Dashboard</button>
+  </aside>
+
+  <div class="content">
+
+    <header class="topbar">
+      <div>
+        <strong>Status:</strong>
+        <span class="status critical">RED ALERT</span>
+      </div>
+      <div>
+        Last Update: <span>14:32 PHT</span>
+      </div>
+    </header>
+
+    <section id="citizen" class="view">
+
+      <div class="grid">
+
+        <div class="panel alert-panel">
+          <h3>Active Hazard Alert</h3>
+          <p class="alert-text">
+            ⚠ Severe Flooding Warning  
+            <br>
+            Areas near riverbanks are advised to evacuate immediately.
+          </p>
+        </div>
+
+        <div class="panel">
+          <h3>Your Location</h3>
+          <p>
+            Barangay San Isidro<br>
+            Lat: 14.5995 | Lng: 120.9842
+          </p>
+        </div>
+
+        <div class="panel wide">
+          <h3>Recommended Evacuation Routes</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Route</th>
+                <th>Status</th>
+                <th>Estimated Time</th>
+              </tr>
+            </thead>
+            <tbody id="routeTable">
+              <tr>
+                <td>Main Road → City Gym</td>
+                <td class="safe">SAFE</td>
+                <td>12 mins</td>
+              </tr>
+              <tr>
+                <td>River Road → Elementary School</td>
+                <td class="blocked">BLOCKED</td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <h3>Report Ground Condition</h3>
+          <select>
+            <option>Flooded Road</option>
+            <option>Blocked Road</option>
+            <option>Landslide</option>
+          </select>
+          <button>Submit Report</button>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="admin" class="view hidden">
+
+      <div class="grid">
+
+        <div class="panel wide">
+          <h3>Broadcast Alert</h3>
+          <textarea placeholder="Enter official alert message"></textarea>
+          <button class="danger">Send Alert</button>
+        </div>
+
+        <div class="panel wide">
+          <h3>Live Citizen Reports</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Location</th>
+                <th>Report Type</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>14:21</td>
+                <td>Brgy. San Isidro</td>
+                <td>Flooded Road</td>
+                <td>Verified</td>
+              </tr>
+              <tr>
+                <td>14:26</td>
+                <td>Brgy. Mabini</td>
+                <td>Blocked Road</td>
+                <td>Pending</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

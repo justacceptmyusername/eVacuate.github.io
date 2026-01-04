@@ -1,0 +1,118 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #eef1f4;
+}
+
+.app {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 220px;
+  background: #1e2a38;
+  color: white;
+  padding: 20px;
+}
+
+.sidebar button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  background: #2f4053;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  background: white;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #ccc;
+}
+
+.status {
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.status.critical {
+  background: #c62828;
+  color: white;
+}
+
+.view {
+  padding: 20px;
+}
+
+.hidden {
+  display: none;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.panel {
+  background: white;
+  padding: 15px;
+  border-radius: 6px;
+}
+
+.panel.wide {
+  grid-column: span 2;
+}
+
+.alert-panel {
+  border-left: 6px solid #c62828;
+}
+
+.alert-text {
+  font-size: 1.1em;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+.safe {
+  color: green;
+  font-weight: bold;
+}
+
+.blocked {
+  color: red;
+  font-weight: bold;
+}
+
+button {
+  margin-top: 10px;
+  padding: 8px 12px;
+}
+
+button.danger {
+  background: #c62828;
+  color: white;
+  border: none;
+}
