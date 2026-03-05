@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CPI / SPI / EAC / VAC Calculator - eAccountability</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="performance-calculator">
+<header class="topbar">
+    <div class="logo">
+        <img src="logo.png" alt="eAccountability logo">
+        <span>eAccountability</span>
+    </div>
+    <nav class="topnav">
+        <a href="index.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="project-development.html">Project Development</a>
+        <a href="budget-adjustment-form.html">Forms</a>
+        <a href="login.html" id="loginLink">Login</a>
+        <a href="#" id="logout">Logout</a>
+    </nav>
+</header>
+
+<div class="app-shell">
+    <aside class="sidebar">
+        <h3>Project Dev</h3>
+        <a href="project-development.html" data-page="project-development">Dashboard</a>
+        <a href="ev-calculator.html" data-page="ev-calculator">EV Calculator</a>
+        <a href="variance-calculator.html" data-page="variance-calculator">CV / SV Calculator</a>
+        <a href="performance-calculator.html" data-page="performance-calculator">CPI / SPI / EAC / VAC</a>
+    </aside>
+
+    <main class="content">
+        <section class="card page-header">
+            <h2>CPI / SPI / EAC / VAC Calculator</h2>
+            <p>Compute performance indices and forecast values.</p>
+        </section>
+
+        <section class="card">
+            <form class="form-grid" id="performanceForm">
+                <label>Budget (BAC, PHP)<input type="number" id="budget" value="500000" min="0" step="0.01"></label>
+                <label>PV (%)<input type="number" id="pvPct" value="50" min="0" max="100" step="0.01"></label>
+                <label>EV (%)<input type="number" id="evPct" value="40" min="0" max="100" step="0.01"></label>
+                <label>AC (PHP)<input type="number" id="ac" value="280000" min="0" step="0.01"></label>
+                <div class="full-width form-actions"><button type="submit">Compute Performance</button></div>
+            </form>
+        </section>
+
+        <section class="card">
+            <h3>Indicator Bars</h3>
+            <div class="indicator-row">
+                <div class="indicator-label">CPI</div>
+                <div class="indicator-track"><div id="cpiBar" class="indicator-fill"></div></div>
+                <div id="cpiValue" class="indicator-value">0.00</div>
+            </div>
+            <div class="indicator-row">
+                <div class="indicator-label">SPI</div>
+                <div class="indicator-track"><div id="spiBar" class="indicator-fill"></div></div>
+                <div id="spiValue" class="indicator-value">0.00</div>
+            </div>
+            <p id="resEac" style="margin-top: 12px;">EAC: PHP 0.00</p>
+            <p id="resVac">VAC: PHP 0.00</p>
+        </section>
+    </main>
+</div>
+
+<script src="app.js"></script>
+<script>
+    const peso = (v) => `PHP ${Number(v || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+    function setIndicator(barId, valueId, value) {
+        const clamped = Math.max(0, Math.min(1.5, Number(value || 0)));
+        const percent = (clamped / 1.5) * 100;
+        const bar = document.getElementById(barId);
+        const label = document.getElementById(valueId);
+        bar.style.width = `${percent}%`;
+        bar.className = `indicator-fill ${clamped >= 1 ? 'good' : clamped >= 0.85 ? 'warn' : 'bad'}`;
+        label.textContent = Number(value || 0).toFixed(2);
+    }
+
+    function compute(ev) {
+        ev.preventDefault();
+        const budget = Number(document.getElementById('budget').value || 0);
+        const pvPct = Number(document.getElementById('pvPct').value || 0) / 100;
+        const evPct = Number(document.getElementById('evPct').value || 0) / 100;
+        const ac = Number(document.getElementById('ac').value || 0);
+
+        const pvPeso = budget * pvPct;
+        const evPeso = budget * evPct;
+        const cpi = ac > 0 ? evPeso / ac : 0;
+        const spi = pvPeso > 0 ? evPeso / pvPeso : 0;
+        const eac = cpi > 0 ? budget / cpi : 0;
+        const vac = budget - eac;
+
+        setIndicator('cpiBar', 'cpiValue', cpi);
+        setIndicator('spiBar', 'spiValue', spi);
+        document.getElementById('resEac').textContent = `EAC: ${peso(eac)}`;
+        document.getElementById('resVac').textContent = `VAC: ${peso(vac)}`;
+    }
+
+    document.getElementById('performanceForm').addEventListener('submit', compute);
+</script>
+</body>
+</html>
+
+

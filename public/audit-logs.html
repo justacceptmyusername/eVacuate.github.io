@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Audit Logs - eAccountability</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="audit-logs">
+<header class="topbar">
+    <div class="logo">
+        <img src="logo.png" alt="eAccountability logo">
+        <span>eAccountability</span>
+    </div>
+    <nav class="topnav">
+        <a href="index.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="project-development.html">Project Development</a>
+        <a href="budget-adjustment-form.html">Forms</a>
+        <a href="login.html" id="loginLink">Login</a>
+        <a href="#" id="logout">Logout</a>
+    </nav>
+</header>
+
+<div class="app-shell">
+    <aside class="sidebar">
+        <h3>Tabs</h3>
+        <a href="dashboard.html" data-page="dashboard">Dashboard</a>
+        <a href="budget-transparency.html" data-page="budget-transparency">Budget Transparency</a>
+        <a href="procurement-tracker.html" data-page="procurement-tracker">Procurement Tracker</a>
+        <a href="audit-logs.html" data-page="audit-logs">Audit Logs</a>
+        <a href="alert-notifications.html" data-page="alert-notifications">Alert Notifications</a>
+    </aside>
+
+    <main class="content">
+        <section class="card page-header">
+            <h2>Audit Logs</h2>
+            <p>Events are populated from Audit Incident and Compliance Review forms.</p>
+        </section>
+
+        <section class="card">
+            <h3>Recent Activity</h3>
+            <div class="table-toolbar">
+                <input type="text" id="auditSearch" placeholder="Search actor, action, or scope...">
+                <select id="auditResult">
+                    <option value="all">All Results</option>
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                    <option value="Critical">Critical</option>
+                    <option value="Moderate">Moderate</option>
+                </select>
+            </div>
+            <table>
+                <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Actor</th>
+                    <th>Action</th>
+                    <th>Scope</th>
+                    <th>Result</th>
+                </tr>
+                </thead>
+                <tbody id="auditRows"></tbody>
+            </table>
+        </section>
+    </main>
+</div>
+
+<script src="app.js"></script>
+<script>
+    const auditSearch = document.getElementById('auditSearch');
+    const auditResult = document.getElementById('auditResult');
+    const auditRowsEl = document.getElementById('auditRows');
+    let records = [];
+
+    function renderRows() {
+        const query = auditSearch.value.toLowerCase().trim();
+        const resultFilter = auditResult.value;
+
+        const filtered = records.filter((row) => {
+            const text = `${row.actor} ${row.action} ${row.scope}`.toLowerCase();
+            const matchesSearch = text.includes(query);
+            const matchesResult = resultFilter === 'all' || row.result === resultFilter;
+            return matchesSearch && matchesResult;
+        });
+
+        auditRowsEl.innerHTML = '';
+        if (!filtered.length) {
+            auditRowsEl.innerHTML = '<tr><td colspan="5">No audit events yet.</td></tr>';
+            return;
+        }
+
+        filtered.forEach((row) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${row.event_date || '-'}</td>
+                <td>${row.actor || '-'}</td>
+                <td>${row.action || '-'}</td>
+                <td>${row.scope || '-'}</td>
+                <td>${row.result || '-'}</td>
+            `;
+            auditRowsEl.appendChild(tr);
+        });
+    }
+
+    async function loadRows() {
+        const res = await fetch(apiUrl('/api/audit-logs'), { cache: 'no-store' });
+        if (!res.ok) return;
+        records = await res.json();
+        renderRows();
+    }
+
+    auditSearch.addEventListener('input', renderRows);
+    auditResult.addEventListener('change', renderRows);
+    loadRows();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

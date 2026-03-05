@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Audit Incident Form - eAccountability</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="audit-incident-form">
+<header class="topbar">
+    <div class="logo">
+        <img src="logo.png" alt="eAccountability logo">
+        <span>eAccountability</span>
+    </div>
+    <nav class="topnav">
+        <a href="index.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="project-development.html">Project Development</a>
+        <a href="budget-adjustment-form.html">Forms</a>
+        <a href="login.html" id="loginLink">Login</a>
+        <a href="#" id="logout">Logout</a>
+    </nav>
+</header>
+
+<div class="app-shell">
+    <aside class="sidebar">
+        <h3>Forms</h3>
+        <a href="budget-adjustment-form.html" data-page="budget-adjustment-form">Budget Adjustment</a>
+        <a href="procurement-intake-form.html" data-page="procurement-intake-form">Procurement Intake</a>
+        <a href="audit-incident-form.html" data-page="audit-incident-form">Audit Incident</a>
+        <a href="compliance-review-form.html" data-page="compliance-review-form">Compliance Review</a>
+        <a href="news-blog-form.html" data-page="news-blog-form">News / Blog Form</a>
+    </aside>
+
+    <main class="content">
+        <section class="card page-header">
+            <h2>Audit Incident Report</h2>
+            <p>Record issues, evidence pointers, and immediate responses for audit trails.</p>
+        </section>
+
+        <section class="card">
+            <form class="form-grid" id="auditIncidentForm">
+                <label>Reported By<input type="email" name="reportedBy" required></label>
+                <label>
+                    Area
+                    <select name="area" required>
+                        <option value="">Select area</option>
+                        <option>Budget Transparency</option>
+                        <option>Procurement</option>
+                        <option>Documentation</option>
+                        <option>Compliance</option>
+                    </select>
+                </label>
+                <label>
+                    Severity
+                    <select name="severity" required>
+                        <option value="">Select severity</option>
+                        <option>Low</option>
+                        <option>Medium</option>
+                        <option>High</option>
+                        <option>Critical</option>
+                    </select>
+                </label>
+                <label>Date Observed<input type="date" name="dateObserved" required></label>
+                <label class="full-width">Incident Details<textarea name="details" required></textarea></label>
+                <label class="full-width">Immediate Actions Taken<textarea name="actions"></textarea></label>
+                <div class="full-width form-actions">
+                    <button type="submit">Submit Incident Report</button>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+
+<script src="app.js"></script>
+<script>
+    document.getElementById('auditIncidentForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const payload = Object.fromEntries(new FormData(event.target).entries());
+        const res = await fetch(apiUrl('/api/forms/audit-incident'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!res.ok) return alert('Failed to submit form.');
+        alert('Audit incident submitted.');
+        event.target.reset();
+    });
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+

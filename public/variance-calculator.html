@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CV / SV Calculator - eAccountability</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="variance-calculator">
+<header class="topbar">
+    <div class="logo">
+        <img src="logo.png" alt="eAccountability logo">
+        <span>eAccountability</span>
+    </div>
+    <nav class="topnav">
+        <a href="index.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="project-development.html">Project Development</a>
+        <a href="budget-adjustment-form.html">Forms</a>
+        <a href="login.html" id="loginLink">Login</a>
+        <a href="#" id="logout">Logout</a>
+    </nav>
+</header>
+
+<div class="app-shell">
+    <aside class="sidebar">
+        <h3>Project Dev</h3>
+        <a href="project-development.html" data-page="project-development">Dashboard</a>
+        <a href="ev-calculator.html" data-page="ev-calculator">EV Calculator</a>
+        <a href="variance-calculator.html" data-page="variance-calculator">CV / SV Calculator</a>
+        <a href="performance-calculator.html" data-page="performance-calculator">CPI / SPI / EAC / VAC</a>
+    </aside>
+
+    <main class="content">
+        <section class="card page-header">
+            <h2>CV / SV Calculator</h2>
+            <p>Compute EV (peso), PV (peso), Cost Variance, and Schedule Variance.</p>
+        </section>
+
+        <section class="card">
+            <form class="form-grid" id="varianceForm">
+                <label>Budget (PHP)<input type="number" id="budget" value="500000" min="0" step="0.01"></label>
+                <label>PV (%)<input type="number" id="pvPct" value="50" min="0" max="100" step="0.01"></label>
+                <label>EV (%)<input type="number" id="evPct" value="40" min="0" max="100" step="0.01"></label>
+                <label>AC (PHP)<input type="number" id="ac" value="280000" min="0" step="0.01"></label>
+                <div class="full-width form-actions"><button type="submit">Compute CV/SV</button></div>
+            </form>
+        </section>
+
+        <section class="card">
+            <h3>Results</h3>
+            <p id="resEv">EV: PHP 200,000.00</p>
+            <p id="resPv">PV: PHP 250,000.00</p>
+            <p id="resCv">CV: PHP -80,000.00</p>
+            <p id="resSv">SV: PHP -50,000.00</p>
+        </section>
+    </main>
+</div>
+
+<script src="app.js"></script>
+<script>
+    const peso = (v) => `PHP ${Number(v || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    function compute(ev) {
+        ev.preventDefault();
+        const budget = Number(document.getElementById('budget').value || 0);
+        const pvPct = Number(document.getElementById('pvPct').value || 0) / 100;
+        const evPct = Number(document.getElementById('evPct').value || 0) / 100;
+        const ac = Number(document.getElementById('ac').value || 0);
+
+        const pvPeso = budget * pvPct;
+        const evPeso = budget * evPct;
+        const cv = evPeso - ac;
+        const sv = evPeso - pvPeso;
+
+        document.getElementById('resEv').textContent = `EV: ${peso(evPeso)}`;
+        document.getElementById('resPv').textContent = `PV: ${peso(pvPeso)}`;
+        document.getElementById('resCv').textContent = `CV: ${peso(cv)}`;
+        document.getElementById('resSv').textContent = `SV: ${peso(sv)}`;
+    }
+    document.getElementById('varianceForm').addEventListener('submit', compute);
+</script>
+</body>
+</html>
+
+

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>News / Blog Form - eAccountability</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="news-blog-form">
+<header class="topbar">
+    <div class="logo">
+        <img src="logo.png" alt="eAccountability logo">
+        <span>eAccountability</span>
+    </div>
+    <nav class="topnav">
+        <a href="index.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="project-development.html">Project Development</a>
+        <a href="budget-adjustment-form.html">Forms</a>
+        <a href="login.html" id="loginLink">Login</a>
+        <a href="#" id="logout">Logout</a>
+    </nav>
+</header>
+
+<div class="app-shell">
+    <aside class="sidebar">
+        <h3>Forms</h3>
+        <a href="budget-adjustment-form.html" data-page="budget-adjustment-form">Budget Adjustment</a>
+        <a href="procurement-intake-form.html" data-page="procurement-intake-form">Procurement Intake</a>
+        <a href="audit-incident-form.html" data-page="audit-incident-form">Audit Incident</a>
+        <a href="compliance-review-form.html" data-page="compliance-review-form">Compliance Review</a>
+        <a href="news-blog-form.html" data-page="news-blog-form">News / Blog Form</a>
+    </aside>
+
+    <main class="content">
+        <section class="card page-header">
+            <h2>Home News / Blog Form</h2>
+            <p>Publish entries that appear in the homepage news feed.</p>
+        </section>
+
+        <section class="card">
+            <form id="newsBlogForm" class="form-grid">
+                <label>Title<input type="text" name="title" required></label>
+                <label>
+                    Category
+                    <select name="category" required>
+                        <option>News</option>
+                        <option>Blog</option>
+                        <option>Policy Update</option>
+                        <option>Community</option>
+                    </select>
+                </label>
+                <label>Author<input type="text" name="author" required></label>
+                <label>Publish Date<input type="date" name="publishedOn" required></label>
+                <label>Image URL<input type="text" name="imageUrl" placeholder="https://..." required></label>
+                <label class="full-width">Summary<textarea name="summary" required></textarea></label>
+                <label class="full-width">Content<textarea name="content" required></textarea></label>
+                <label class="full-width">Source URL<input type="text" name="sourceUrl" placeholder="https://..."></label>
+                <div class="full-width form-actions">
+                    <button type="submit">Publish to Home</button>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+
+<script src="app.js"></script>
+<script>
+    document.getElementById('newsBlogForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const payload = Object.fromEntries(new FormData(event.target).entries());
+        const res = await fetch(apiUrl('/api/forms/news-post'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!res.ok) return alert('Failed to publish post.');
+        alert('News/blog post published.');
+        event.target.reset();
+    });
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+

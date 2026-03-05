@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Budget Adjustment Form - eAccountability</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="budget-adjustment-form">
+<header class="topbar">
+    <div class="logo">
+        <img src="logo.png" alt="eAccountability logo">
+        <span>eAccountability</span>
+    </div>
+    <nav class="topnav">
+        <a href="index.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="project-development.html">Project Development</a>
+        <a href="budget-adjustment-form.html">Forms</a>
+        <a href="login.html" id="loginLink">Login</a>
+        <a href="#" id="logout">Logout</a>
+    </nav>
+</header>
+
+<div class="app-shell">
+    <aside class="sidebar">
+        <h3>Forms</h3>
+        <a href="budget-adjustment-form.html" data-page="budget-adjustment-form">Budget Adjustment</a>
+        <a href="procurement-intake-form.html" data-page="procurement-intake-form">Procurement Intake</a>
+        <a href="audit-incident-form.html" data-page="audit-incident-form">Audit Incident</a>
+        <a href="compliance-review-form.html" data-page="compliance-review-form">Compliance Review</a>
+        <a href="news-blog-form.html" data-page="news-blog-form">News / Blog Form</a>
+    </aside>
+
+    <main class="content">
+        <section class="card page-header">
+            <h2>Budget Adjustment Request</h2>
+            <p>Submit budget movement requests for review and approval.</p>
+        </section>
+
+        <section class="card">
+            <form class="form-grid" id="budgetAdjustmentForm">
+                <label>Department<input type="text" name="department" required></label>
+                <label>Program<input type="text" name="program" required></label>
+                <label>Current Allocation (PHP)<input type="number" name="currentAllocation" min="0" step="0.01" required></label>
+                <label>Requested Change (PHP)<input type="number" name="requestedChange" step="0.01" required></label>
+                <label>Effective Date<input type="date" name="effectiveDate" required></label>
+                <label>
+                    Priority
+                    <select name="priority" required>
+                        <option value="">Select priority</option>
+                        <option>Low</option>
+                        <option>Medium</option>
+                        <option>High</option>
+                    </select>
+                </label>
+                <label class="full-width">Justification<textarea name="justification" required></textarea></label>
+                <div class="full-width form-actions">
+                    <button type="submit">Submit Budget Request</button>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+
+<script src="app.js"></script>
+<script>
+    document.getElementById('budgetAdjustmentForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const payload = Object.fromEntries(new FormData(event.target).entries());
+        const res = await fetch(apiUrl('/api/forms/budget-adjustment'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!res.ok) return alert('Failed to submit form.');
+        alert('Budget adjustment submitted.');
+        event.target.reset();
+    });
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+

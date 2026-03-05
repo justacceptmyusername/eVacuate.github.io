@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Alert Notifications - eAccountability</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="alert-notifications">
+<header class="topbar">
+    <div class="logo">
+        <img src="logo.png" alt="eAccountability logo">
+        <span>eAccountability</span>
+    </div>
+    <nav class="topnav">
+        <a href="index.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="project-development.html">Project Development</a>
+        <a href="budget-adjustment-form.html">Forms</a>
+        <a href="login.html" id="loginLink">Login</a>
+        <a href="#" id="logout">Logout</a>
+    </nav>
+</header>
+
+<div class="app-shell">
+    <aside class="sidebar">
+        <h3>Tabs</h3>
+        <a href="dashboard.html" data-page="dashboard">Dashboard</a>
+        <a href="budget-transparency.html" data-page="budget-transparency">Budget Transparency</a>
+        <a href="procurement-tracker.html" data-page="procurement-tracker">Procurement Tracker</a>
+        <a href="audit-logs.html" data-page="audit-logs">Audit Logs</a>
+        <a href="alert-notifications.html" data-page="alert-notifications">Alert Notifications</a>
+    </aside>
+
+    <main class="content">
+        <section class="card page-header">
+            <h2>Alert Notifications</h2>
+            <p>Auto-generated from high-severity audit incidents and overdue procurements.</p>
+        </section>
+
+        <section class="summary-grid">
+            <article class="card metric-card"><h3>Active Alerts</h3><p id="activeAlerts">0</p></article>
+            <article class="card metric-card"><h3>Investigating</h3><p id="investigatingAlerts">0</p></article>
+            <article class="card metric-card"><h3>High Severity</h3><p id="highAlerts">0</p></article>
+            <article class="card metric-card"><h3>Resolved</h3><p id="resolvedAlerts">0</p></article>
+        </section>
+
+        <section class="card">
+            <h3>Priority Alerts</h3>
+            <table>
+                <thead>
+                <tr>
+                    <th>Priority</th>
+                    <th>Alert</th>
+                    <th>Owner</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody id="alertRows"></tbody>
+            </table>
+        </section>
+    </main>
+</div>
+
+<script src="app.js"></script>
+<script>
+    async function loadAlerts() {
+        const res = await fetch(apiUrl('/api/alert-notifications'), { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+
+        document.getElementById('activeAlerts').textContent = data.severity.active || 0;
+        document.getElementById('investigatingAlerts').textContent = data.severity.investigating || 0;
+        document.getElementById('highAlerts').textContent = data.severity.high || 0;
+        document.getElementById('resolvedAlerts').textContent = data.severity.resolved || 0;
+
+        const rowsEl = document.getElementById('alertRows');
+        rowsEl.innerHTML = '';
+        const rows = (data.alerts || []).length
+            ? data.alerts
+            : [{ priority: 'Low', alert: 'No alerts at this time.', owner: '-', status: '-' }];
+
+        rows.forEach((row) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${row.priority}</td>
+                <td>${row.alert}</td>
+                <td>${row.owner}</td>
+                <td>${row.status}</td>
+            `;
+            rowsEl.appendChild(tr);
+        });
+    }
+
+    loadAlerts();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

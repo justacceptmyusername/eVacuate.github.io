@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Procurement Tracker - eAccountability</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="procurement-tracker">
+<header class="topbar">
+    <div class="logo">
+        <img src="logo.png" alt="eAccountability logo">
+        <span>eAccountability</span>
+    </div>
+    <nav class="topnav">
+        <a href="index.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="project-development.html">Project Development</a>
+        <a href="budget-adjustment-form.html">Forms</a>
+        <a href="login.html" id="loginLink">Login</a>
+        <a href="#" id="logout">Logout</a>
+    </nav>
+</header>
+
+<div class="app-shell">
+    <aside class="sidebar">
+        <h3>Tabs</h3>
+        <a href="dashboard.html" data-page="dashboard">Dashboard</a>
+        <a href="budget-transparency.html" data-page="budget-transparency">Budget Transparency</a>
+        <a href="procurement-tracker.html" data-page="procurement-tracker">Procurement Tracker</a>
+        <a href="audit-logs.html" data-page="audit-logs">Audit Logs</a>
+        <a href="alert-notifications.html" data-page="alert-notifications">Alert Notifications</a>
+    </aside>
+
+    <main class="content">
+        <section class="card page-header">
+            <h2>Procurement Tracker</h2>
+            <p>Records are populated from submitted Procurement Intake forms.</p>
+        </section>
+
+        <section class="card">
+            <h3>Open Procurements</h3>
+            <div class="table-toolbar">
+                <input type="text" id="procurementSearch" placeholder="Search reference, vendor, or category...">
+                <select id="procurementStatus">
+                    <option value="all">All Statuses</option>
+                    <option value="Evaluation">Evaluation</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Bid Open">Bid Open</option>
+                </select>
+            </div>
+            <table>
+                <thead>
+                <tr>
+                    <th>Reference ID</th>
+                    <th>Vendor</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Deadline</th>
+                </tr>
+                </thead>
+                <tbody id="procurementRows"></tbody>
+            </table>
+        </section>
+    </main>
+</div>
+
+<script src="app.js"></script>
+<script>
+    const procurementSearch = document.getElementById('procurementSearch');
+    const procurementStatus = document.getElementById('procurementStatus');
+    const procurementRowsEl = document.getElementById('procurementRows');
+    let records = [];
+
+    const currency = (value) => `PHP ${Number(value || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+    function renderRows() {
+        const query = procurementSearch.value.toLowerCase().trim();
+        const statusFilter = procurementStatus.value;
+
+        const filtered = records.filter((row) => {
+            const rowText = `${row.request_id} ${row.vendor} ${row.category}`.toLowerCase();
+            const matchesSearch = rowText.includes(query);
+            const matchesStatus = statusFilter === 'all' || row.status === statusFilter;
+            return matchesSearch && matchesStatus;
+        });
+
+        procurementRowsEl.innerHTML = '';
+        if (!filtered.length) {
+            procurementRowsEl.innerHTML = '<tr><td colspan="6">No procurement records yet.</td></tr>';
+            return;
+        }
+
+        filtered.forEach((row) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${row.request_id}</td>
+                <td>${row.vendor}</td>
+                <td>${row.category}</td>
+                <td>${currency(row.amount)}</td>
+                <td>${row.status}</td>
+                <td>${row.deadline}</td>
+            `;
+            procurementRowsEl.appendChild(tr);
+        });
+    }
+
+    async function loadRows() {
+        const res = await fetch(apiUrl('/api/procurement-tracker'), { cache: 'no-store' });
+        if (!res.ok) return;
+        records = await res.json();
+        renderRows();
+    }
+
+    procurementSearch.addEventListener('input', renderRows);
+    procurementStatus.addEventListener('change', renderRows);
+    loadRows();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>eAccountability</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+    <div class="logo">
+        <img src="logo.png" alt="eAccountability logo">
+        <span>eAccountability</span>
+    </div>
+    <nav class="topnav">
+        <a href="index.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="project-development.html">Project Development</a>
+        <a href="budget-adjustment-form.html">Forms</a>
+        <a href="login.html" id="loginLink">Login</a>
+        <a href="#" id="logout">Logout</a>
+    </nav>
+</header>
+
+<section class="hero">
+    <span class="pill">News / Blog / Accountability Updates</span>
+    <h1>Public oversight stories and latest updates.</h1>
+    <p>The homepage now focuses on news and blog posts published from the Home News / Blog form.</p>
+    <div class="hero-actions">
+        <a class="button" href="news-blog-form.html">Submit News / Blog</a>
+        <a class="button" href="dashboard.html">Open Dashboard</a>
+    </div>
+</section>
+
+<section class="hero news-section">
+    <h2>Latest Posts</h2>
+    <div id="newsGrid" class="news-grid"></div>
+</section>
+
+<script src="app.js"></script>
+<script>
+    function escapeHtml(value) {
+        const div = document.createElement('div');
+        div.textContent = value || '';
+        return div.innerHTML;
+    }
+
+    async function loadNews() {
+        const res = await fetch(apiUrl('/api/news'), { cache: 'no-store' });
+        if (!res.ok) return;
+        const posts = await res.json();
+        const grid = document.getElementById('newsGrid');
+        grid.innerHTML = '';
+
+        if (!posts.length) {
+            grid.innerHTML = '<article class="card"><h3>No news yet</h3><p>Use the News / Blog form to publish the first post.</p></article>';
+            return;
+        }
+
+        posts.forEach((post) => {
+            const article = document.createElement('article');
+            article.className = 'card news-card';
+            article.style.cursor = 'pointer';
+            article.innerHTML = `
+                <div class="news-image-wrap">
+                    <img class="news-image" src="${escapeHtml(post.image_url || '')}" alt="${escapeHtml(post.title)}" onerror="this.style.display='none'; this.parentElement.classList.add('news-image-fallback'); this.parentElement.textContent='No image';">
+                </div>
+                <span class="pill">${escapeHtml(post.category)}</span>
+                <h3>${escapeHtml(post.title)}</h3>
+                <p>${escapeHtml(post.summary)}</p>
+                <small>By ${escapeHtml(post.author)} on ${escapeHtml(post.published_on)}</small>
+                ${post.source_url ? `<p><a class="muted-link" href="${escapeHtml(post.source_url)}" target="_blank" rel="noopener">Source</a></p>` : ''}
+            `;
+            article.onclick = () => {
+                window.location.href = `blog-post.html?id=${post.id}`;
+            };
+            grid.appendChild(article);
+        });
+    }
+
+    loadNews();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+

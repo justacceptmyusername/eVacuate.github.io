@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Compliance Review Form - eAccountability</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="compliance-review-form">
+<header class="topbar">
+    <div class="logo">
+        <img src="logo.png" alt="eAccountability logo">
+        <span>eAccountability</span>
+    </div>
+    <nav class="topnav">
+        <a href="index.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="project-development.html">Project Development</a>
+        <a href="budget-adjustment-form.html">Forms</a>
+        <a href="login.html" id="loginLink">Login</a>
+        <a href="#" id="logout">Logout</a>
+    </nav>
+</header>
+
+<div class="app-shell">
+    <aside class="sidebar">
+        <h3>Forms</h3>
+        <a href="budget-adjustment-form.html" data-page="budget-adjustment-form">Budget Adjustment</a>
+        <a href="procurement-intake-form.html" data-page="procurement-intake-form">Procurement Intake</a>
+        <a href="audit-incident-form.html" data-page="audit-incident-form">Audit Incident</a>
+        <a href="compliance-review-form.html" data-page="compliance-review-form">Compliance Review</a>
+        <a href="news-blog-form.html" data-page="news-blog-form">News / Blog Form</a>
+    </aside>
+
+    <main class="content">
+        <section class="card page-header">
+            <h2>Compliance Review Form</h2>
+            <p>Dedicated workflow for control checks, risk rating, and corrective actions.</p>
+        </section>
+
+        <section class="card">
+            <form id="complianceReviewForm" class="form-grid">
+                <label>Review ID<input type="text" name="reviewId" required></label>
+                <label>Lead Reviewer<input type="text" name="leadReviewer" required></label>
+                <label>Unit Under Review<input type="text" name="unit" required></label>
+                <label>Review Window Start<input type="date" name="startDate" required></label>
+                <label>Review Window End<input type="date" name="endDate" required></label>
+                <label>
+                    Final Risk Rating
+                    <select name="riskRating" required>
+                        <option value="">Select risk rating</option>
+                        <option>Low</option>
+                        <option>Moderate</option>
+                        <option>High</option>
+                        <option>Critical</option>
+                    </select>
+                </label>
+
+                <fieldset class="full-width checklist-fieldset">
+                    <legend>Control Checklist</legend>
+                    <div class="checklist-grid">
+                        <label><input type="checkbox" name="controls" value="segregation"> Segregation of duties verified</label>
+                        <label><input type="checkbox" name="controls" value="authorization"> Authorization matrix current</label>
+                        <label><input type="checkbox" name="controls" value="documentation"> Supporting documents complete</label>
+                        <label><input type="checkbox" name="controls" value="auditTrail"> Audit trail is tamper-evident</label>
+                        <label><input type="checkbox" name="controls" value="exceptions"> Exception log maintained</label>
+                        <label><input type="checkbox" name="controls" value="approvals"> Approval cycle compliant</label>
+                    </div>
+                </fieldset>
+
+                <label class="full-width">Key Findings<textarea name="findings" required></textarea></label>
+                <label class="full-width">Recommended Corrective Actions<textarea name="recommendations" required></textarea></label>
+                <label class="full-width">Evidence Attachment<input type="file" name="evidence" accept=".pdf,.doc,.docx,.png,.jpg"></label>
+                <div class="full-width form-actions">
+                    <button type="submit">Submit Compliance Review</button>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+
+<script src="app.js"></script>
+<script>
+    document.getElementById('complianceReviewForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const payload = {
+            reviewId: formData.get('reviewId'),
+            leadReviewer: formData.get('leadReviewer'),
+            unit: formData.get('unit'),
+            startDate: formData.get('startDate'),
+            endDate: formData.get('endDate'),
+            riskRating: formData.get('riskRating'),
+            controls: formData.getAll('controls'),
+            findings: formData.get('findings'),
+            recommendations: formData.get('recommendations'),
+            evidenceName: formData.get('evidence')?.name || ''
+        };
+
+        const res = await fetch(apiUrl('/api/forms/compliance-review'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!res.ok) return alert('Failed to submit form.');
+        alert('Compliance review submitted.');
+        event.target.reset();
+    });
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+

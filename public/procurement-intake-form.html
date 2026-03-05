@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Procurement Intake Form - eAccountability</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="procurement-intake-form">
+<header class="topbar">
+    <div class="logo">
+        <img src="logo.png" alt="eAccountability logo">
+        <span>eAccountability</span>
+    </div>
+    <nav class="topnav">
+        <a href="index.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="project-development.html">Project Development</a>
+        <a href="budget-adjustment-form.html">Forms</a>
+        <a href="login.html" id="loginLink">Login</a>
+        <a href="#" id="logout">Logout</a>
+    </nav>
+</header>
+
+<div class="app-shell">
+    <aside class="sidebar">
+        <h3>Forms</h3>
+        <a href="budget-adjustment-form.html" data-page="budget-adjustment-form">Budget Adjustment</a>
+        <a href="procurement-intake-form.html" data-page="procurement-intake-form">Procurement Intake</a>
+        <a href="audit-incident-form.html" data-page="audit-incident-form">Audit Incident</a>
+        <a href="compliance-review-form.html" data-page="compliance-review-form">Compliance Review</a>
+        <a href="news-blog-form.html" data-page="news-blog-form">News / Blog Form</a>
+    </aside>
+
+    <main class="content">
+        <section class="card page-header">
+            <h2>Procurement Intake Form</h2>
+            <p>Register procurement opportunities and route them through the tender cycle.</p>
+        </section>
+
+        <section class="card">
+            <form class="form-grid" id="procurementIntakeForm">
+                <label>Request ID<input type="text" name="requestId" required></label>
+                <label>Vendor Name<input type="text" name="vendor" required></label>
+                <label>
+                    Category
+                    <select name="category" required>
+                        <option value="">Select category</option>
+                        <option>Public Works</option>
+                        <option>IT Services</option>
+                        <option>Operations</option>
+                        <option>Consulting</option>
+                    </select>
+                </label>
+                <label>Estimated Amount (PHP)<input type="number" name="amount" min="0" step="0.01" required></label>
+                <label>Bidding Deadline<input type="date" name="deadline" required></label>
+                <label>
+                    Current Status
+                    <select name="status" required>
+                        <option value="">Select status</option>
+                        <option>Bid Open</option>
+                        <option>Evaluation</option>
+                        <option>Approved</option>
+                    </select>
+                </label>
+                <label class="full-width">Scope Summary<textarea name="scope" required></textarea></label>
+                <div class="full-width form-actions">
+                    <button type="submit">Submit Procurement Intake</button>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+
+<script src="app.js"></script>
+<script>
+    document.getElementById('procurementIntakeForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const payload = Object.fromEntries(new FormData(event.target).entries());
+        const res = await fetch(apiUrl('/api/forms/procurement-intake'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!res.ok) return alert('Failed to submit form.');
+        alert('Procurement intake submitted.');
+        event.target.reset();
+    });
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+

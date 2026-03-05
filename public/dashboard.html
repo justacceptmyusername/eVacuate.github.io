@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - eAccountability</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="dashboard">
+<header class="topbar">
+    <div class="logo">
+        <img src="logo.png" alt="eAccountability logo">
+        <span>eAccountability</span>
+    </div>
+    <nav class="topnav">
+        <a href="index.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="project-development.html">Project Development</a>
+        <a href="budget-adjustment-form.html">Forms</a>
+        <a href="login.html" id="loginLink">Login</a>
+        <a href="#" id="logout">Logout</a>
+    </nav>
+</header>
+
+<div class="app-shell compact-shell">
+    <aside class="sidebar">
+        <h3>Tabs</h3>
+        <a href="dashboard.html" data-page="dashboard">Dashboard</a>
+        <a href="budget-transparency.html" data-page="budget-transparency">Budget Transparency</a>
+        <a href="procurement-tracker.html" data-page="procurement-tracker">Procurement Tracker</a>
+        <a href="audit-logs.html" data-page="audit-logs">Audit Logs</a>
+        <a href="alert-notifications.html" data-page="alert-notifications">Alert Notifications</a>
+    </aside>
+
+    <main class="content compact-content">
+        <section class="card page-header compact-header">
+            <h2>Accountability Dashboard</h2>
+            <p>What matters most: funds, delivery progress, risks, and unresolved compliance signals.</p>
+        </section>
+
+        <section class="summary-grid compact-kpis">
+            <article class="card metric-card compact-metric"><h3>Total Allocation</h3><p id="kpiAllocation">PHP 0.00</p></article>
+            <article class="card metric-card compact-metric"><h3>Requested Budget</h3><p id="kpiRequested">PHP 0.00</p></article>
+            <article class="card metric-card compact-metric"><h3>Active Projects</h3><p id="kpiProjects">0</p></article>
+            <article class="card metric-card compact-metric"><h3>Overdue Projects</h3><p id="kpiOverdue">0</p></article>
+        </section>
+
+        <section class="compact-two-col">
+            <article class="card">
+                <h3>Delivery Snapshot</h3>
+                <table>
+                    <tbody>
+                    <tr><th>Approved Projects</th><td id="kpiApproved">0</td></tr>
+                    <tr><th>High Audit Issues</th><td id="kpiHighIssues">0</td></tr>
+                    <tr><th>Compliance Reviews</th><td id="kpiCompliance">0</td></tr>
+                    <tr><th>Published News</th><td id="kpiNews">0</td></tr>
+                    </tbody>
+                </table>
+            </article>
+            <article class="card rag-card">
+                <h3>Overall Status (RAG)</h3>
+                <div id="ragStatus" class="rag-pill rag-green">Green</div>
+                <p id="ragSummary">Operations are within expected control levels.</p>
+            </article>
+        </section>
+
+        <section class="compact-two-col">
+            <article class="card">
+                <h3>Recent Procurement Activity</h3>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Reference</th>
+                        <th>Vendor</th>
+                        <th>Status</th>
+                        <th>Deadline</th>
+                    </tr>
+                    </thead>
+                    <tbody id="procRows"></tbody>
+                </table>
+            </article>
+            <article class="card">
+                <h3>Recent Audit Activity</h3>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Reporter</th>
+                        <th>Severity</th>
+                    </tr>
+                    </thead>
+                    <tbody id="auditRows"></tbody>
+                </table>
+            </article>
+        </section>
+    </main>
+</div>
+
+<script src="app.js"></script>
+<script>
+    const peso = (value) => `PHP ${Number(value || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+    function setRag(status) {
+        const rag = document.getElementById('ragStatus');
+        const summary = document.getElementById('ragSummary');
+        rag.textContent = status;
+        rag.className = `rag-pill ${status === 'Red' ? 'rag-red' : status === 'Amber' ? 'rag-amber' : 'rag-green'}`;
+        summary.textContent = status === 'Red'
+            ? 'Urgent interventions are needed across project controls.'
+            : status === 'Amber'
+                ? 'Some critical signals need immediate follow-up.'
+                : 'Operations are within expected control levels.';
+    }
+
+    async function loadOverview() {
+        const res = await fetch(apiUrl('/api/dashboard-overview'), { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+
+        document.getElementById('kpiAllocation').textContent = peso(data.kpis.totalAllocation);
+        document.getElementById('kpiRequested').textContent = peso(data.kpis.totalRequested);
+        document.getElementById('kpiProjects').textContent = data.kpis.activeProjects;
+        document.getElementById('kpiOverdue').textContent = data.kpis.overdueProjects;
+        document.getElementById('kpiApproved').textContent = data.kpis.approvedProjects;
+        document.getElementById('kpiHighIssues').textContent = data.kpis.highIssues;
+        document.getElementById('kpiCompliance').textContent = data.kpis.complianceReviews;
+        document.getElementById('kpiNews').textContent = data.kpis.newsPosts;
+
+        const procRows = document.getElementById('procRows');
+        procRows.innerHTML = '';
+        (data.recentProcurement || []).forEach((row) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${row.request_id}</td><td>${row.vendor}</td><td>${row.status}</td><td>${row.deadline}</td>`;
+            procRows.appendChild(tr);
+        });
+        if (!procRows.children.length) procRows.innerHTML = '<tr><td colspan="4">No procurement entries yet.</td></tr>';
+
+        const auditRows = document.getElementById('auditRows');
+        auditRows.innerHTML = '';
+        (data.recentAudit || []).forEach((row) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${row.date_observed}</td><td>${row.reported_by}</td><td>${row.severity}</td>`;
+            auditRows.appendChild(tr);
+        });
+        if (!auditRows.children.length) auditRows.innerHTML = '<tr><td colspan="3">No audit entries yet.</td></tr>';
+
+        setRag(data.ragStatus || 'Green');
+    }
+
+    loadOverview();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+

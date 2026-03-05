@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Project Development Dashboard - eAccountability</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="project-development">
+<header class="topbar">
+    <div class="logo">
+        <img src="logo.png" alt="eAccountability logo">
+        <span>eAccountability</span>
+    </div>
+    <nav class="topnav">
+        <a href="index.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="project-development.html">Project Development</a>
+        <a href="budget-adjustment-form.html">Forms</a>
+        <a href="login.html" id="loginLink">Login</a>
+        <a href="#" id="logout">Logout</a>
+    </nav>
+</header>
+
+<div class="app-shell">
+    <aside class="sidebar">
+        <h3>Project Dev</h3>
+        <a href="project-development.html" data-page="project-development">Dashboard</a>
+        <a href="ev-calculator.html" data-page="ev-calculator">EV Calculator</a>
+        <a href="variance-calculator.html" data-page="variance-calculator">CV / SV Calculator</a>
+        <a href="performance-calculator.html" data-page="performance-calculator">CPI / SPI / EAC / VAC</a>
+    </aside>
+
+    <main class="content compact-content">
+        <section class="card page-header compact-header">
+            <h2>Project Development Dashboard</h2>
+            <p>Dataset used: Budget PHP 500,000, PV 50%, EV 40%, AC PHP 280,000.</p>
+        </section>
+
+        <section class="summary-grid compact-kpis">
+            <article class="card metric-card compact-metric"><h3>Budget (BAC)</h3><p id="kpiBudget">PHP 0.00</p></article>
+            <article class="card metric-card compact-metric"><h3>EV (PHP)</h3><p id="kpiEvPeso">PHP 0.00</p></article>
+            <article class="card metric-card compact-metric"><h3>CV</h3><p id="kpiCv">PHP 0.00</p></article>
+            <article class="card metric-card compact-metric"><h3>SV</h3><p id="kpiSv">PHP 0.00</p></article>
+        </section>
+
+        <section class="card">
+            <h3>PV vs EV vs AC Chart</h3>
+            <canvas id="evmChart" class="chart-canvas chart-compact" width="700" height="180"></canvas>
+        </section>
+
+        <section class="card">
+            <h3>Cost & Schedule Indicator Bars</h3>
+            <div class="indicator-row">
+                <div class="indicator-label">CPI</div>
+                <div class="indicator-track"><div id="cpiBar" class="indicator-fill"></div></div>
+                <div id="cpiValue" class="indicator-value">0.00</div>
+            </div>
+            <div class="indicator-row">
+                <div class="indicator-label">SPI</div>
+                <div class="indicator-track"><div id="spiBar" class="indicator-fill"></div></div>
+                <div id="spiValue" class="indicator-value">0.00</div>
+            </div>
+        </section>
+
+        <section class="compact-two-col">
+            <article class="card">
+                <h3>Risk Dashboard</h3>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Likelihood</th>
+                        <th>Mitigation</th>
+                        <th>Responsible</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Project spending is above earned output.</td>
+                        <td>High</td>
+                        <td>Freeze non-critical items and review cost controls weekly.</td>
+                        <td>Finance Controller</td>
+                    </tr>
+                    <tr>
+                        <td>Work progress is behind the planned schedule.</td>
+                        <td>High</td>
+                        <td>Re-prioritize deliverables and add execution buffer.</td>
+                        <td>Project Manager</td>
+                    </tr>
+                    <tr>
+                        <td>Potential procurement delays affecting timeline.</td>
+                        <td>Medium</td>
+                        <td>Activate secondary suppliers for long lead items.</td>
+                        <td>Procurement Lead</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </article>
+            <article class="card rag-card">
+                <h3>Overall Status (RAG)</h3>
+                <div id="projectRag" class="rag-pill rag-green">Green</div>
+                <p id="projectRagSummary">Project delivery is currently within acceptable variance.</p>
+            </article>
+        </section>
+    </main>
+</div>
+
+<script src="app.js"></script>
+<script>
+    const peso = (v) => `PHP ${Number(v || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+    function drawBarChart(pvPeso, evPeso, acPeso) {
+        const canvas = document.getElementById('evmChart');
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+        ctx.clearRect(0, 0, width, height);
+
+        const pad = { top: 24, right: 24, bottom: 40, left: 48 };
+        const values = [pvPeso, evPeso, acPeso];
+        const labels = ['PV', 'EV', 'AC'];
+        const colors = ['#0f6b5f', '#d0742a', '#375f8a'];
+        const maxValue = Math.max(1, ...values);
+        const chartW = width - pad.left - pad.right;
+        const barW = chartW / 5;
+
+        ctx.strokeStyle = 'rgba(31, 36, 33, 0.2)';
+        ctx.beginPath();
+        ctx.moveTo(pad.left, pad.top);
+        ctx.lineTo(pad.left, height - pad.bottom);
+        ctx.lineTo(width - pad.right, height - pad.bottom);
+        ctx.stroke();
+
+        values.forEach((value, i) => {
+            const h = ((height - pad.top - pad.bottom) * value) / maxValue;
+            const x = pad.left + (i * 1.6 + 0.7) * barW;
+            const y = height - pad.bottom - h;
+            ctx.fillStyle = colors[i];
+            ctx.fillRect(x, y, barW, h);
+            ctx.fillStyle = '#1f2421';
+            ctx.font = '12px Trebuchet MS';
+            ctx.fillText(labels[i], x + 12, height - 16);
+        });
+    }
+
+    function setIndicator(barId, valueId, value) {
+        const clamped = Math.max(0, Math.min(1.5, Number(value || 0)));
+        const percent = (clamped / 1.5) * 100;
+        const bar = document.getElementById(barId);
+        const label = document.getElementById(valueId);
+        bar.style.width = `${percent}%`;
+        bar.className = `indicator-fill ${clamped >= 1 ? 'good' : clamped >= 0.85 ? 'warn' : 'bad'}`;
+        label.textContent = Number(value || 0).toFixed(2);
+    }
+
+    function setProjectRag(cpi, spi) {
+        const rag = document.getElementById('projectRag');
+        const summary = document.getElementById('projectRagSummary');
+        let status = 'Green';
+        if (cpi < 0.95 || spi < 0.95) status = 'Amber';
+        if (cpi < 0.8 || spi < 0.8) status = 'Red';
+
+        rag.textContent = status;
+        rag.className = `rag-pill ${status === 'Red' ? 'rag-red' : status === 'Amber' ? 'rag-amber' : 'rag-green'}`;
+        summary.textContent = status === 'Red'
+            ? 'Project is significantly behind cost/schedule targets.'
+            : status === 'Amber'
+                ? 'Project needs corrective actions to stay on track.'
+                : 'Project delivery is currently within acceptable variance.';
+    }
+
+    function renderDashboard() {
+        const budget = 500000;
+        const pvPct = 0.5;
+        const evPct = 0.4;
+        const ac = 280000;
+
+        const pvPeso = budget * pvPct;
+        const evPeso = budget * evPct;
+        const cv = evPeso - ac;
+        const sv = evPeso - pvPeso;
+        const cpi = ac > 0 ? evPeso / ac : 0;
+        const spi = pvPeso > 0 ? evPeso / pvPeso : 0;
+
+        document.getElementById('kpiBudget').textContent = peso(budget);
+        document.getElementById('kpiEvPeso').textContent = peso(evPeso);
+        document.getElementById('kpiCv').textContent = peso(cv);
+        document.getElementById('kpiSv').textContent = peso(sv);
+
+        drawBarChart(pvPeso, evPeso, ac);
+        setIndicator('cpiBar', 'cpiValue', cpi);
+        setIndicator('spiBar', 'spiValue', spi);
+        setProjectRag(cpi, spi);
+    }
+
+    renderDashboard();
+</script>
+</body>
+</html>
+

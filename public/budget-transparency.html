@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Budget Transparency - eAccountability</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="budget-transparency">
+<header class="topbar">
+    <div class="logo">
+        <img src="logo.png" alt="eAccountability logo">
+        <span>eAccountability</span>
+    </div>
+    <nav class="topnav">
+        <a href="index.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="project-development.html">Project Development</a>
+        <a href="budget-adjustment-form.html">Forms</a>
+        <a href="login.html" id="loginLink">Login</a>
+        <a href="#" id="logout">Logout</a>
+    </nav>
+</header>
+
+<div class="app-shell">
+    <aside class="sidebar">
+        <h3>Tabs</h3>
+        <a href="dashboard.html" data-page="dashboard">Dashboard</a>
+        <a href="budget-transparency.html" data-page="budget-transparency">Budget Transparency</a>
+        <a href="procurement-tracker.html" data-page="procurement-tracker">Procurement Tracker</a>
+        <a href="audit-logs.html" data-page="audit-logs">Audit Logs</a>
+        <a href="alert-notifications.html" data-page="alert-notifications">Alert Notifications</a>
+    </aside>
+
+    <main class="content">
+        <section class="card page-header">
+            <h2>Budget Transparency</h2>
+            <p>Records are populated from submitted Budget Adjustment forms.</p>
+        </section>
+
+        <section class="card">
+            <h3>Budget Adjustment Records</h3>
+            <div class="table-toolbar">
+                <input type="text" id="budgetSearch" placeholder="Search by department, program, or priority...">
+                <select id="budgetPriority">
+                    <option value="all">All Priority</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                </select>
+            </div>
+            <table>
+                <thead>
+                <tr>
+                    <th>Department</th>
+                    <th>Program</th>
+                    <th>Current Allocation</th>
+                    <th>Requested Change</th>
+                    <th>Effective Date</th>
+                    <th>Priority</th>
+                </tr>
+                </thead>
+                <tbody id="budgetRows"></tbody>
+            </table>
+        </section>
+    </main>
+</div>
+
+<script src="app.js"></script>
+<script>
+    const budgetSearch = document.getElementById('budgetSearch');
+    const budgetPriority = document.getElementById('budgetPriority');
+    const budgetRowsEl = document.getElementById('budgetRows');
+    let records = [];
+
+    const currency = (value) => `PHP ${Number(value || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+    function renderRows() {
+        const query = budgetSearch.value.toLowerCase().trim();
+        const priority = budgetPriority.value;
+        const filtered = records.filter((row) => {
+            const text = `${row.department} ${row.program} ${row.priority}`.toLowerCase();
+            const matchSearch = text.includes(query);
+            const matchPriority = priority === 'all' || row.priority === priority;
+            return matchSearch && matchPriority;
+        });
+
+        budgetRowsEl.innerHTML = '';
+        if (!filtered.length) {
+            budgetRowsEl.innerHTML = '<tr><td colspan="6">No budget records yet.</td></tr>';
+            return;
+        }
+
+        filtered.forEach((row) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${row.department}</td>
+                <td>${row.program}</td>
+                <td>${currency(row.current_allocation)}</td>
+                <td>${currency(row.requested_change)}</td>
+                <td>${row.effective_date}</td>
+                <td>${row.priority}</td>
+            `;
+            budgetRowsEl.appendChild(tr);
+        });
+    }
+
+    async function loadBudgetRows() {
+        const res = await fetch(apiUrl('/api/budget-transparency'), { cache: 'no-store' });
+        if (!res.ok) return;
+        records = await res.json();
+        renderRows();
+    }
+
+    budgetSearch.addEventListener('input', renderRows);
+    budgetPriority.addEventListener('change', renderRows);
+    loadBudgetRows();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
